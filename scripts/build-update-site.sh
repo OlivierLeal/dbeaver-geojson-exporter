@@ -94,11 +94,24 @@ if ! java -jar "$LAUNCHER" \
   -application org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher \
   -metadataRepository "file:${SITE_DIR}" \
   -artifactRepository "file:${SITE_DIR}" \
-  -categoryDefinition "file:${SITE_DIR}/category.xml" \
   -source "$SITE_DIR" \
   -publishArtifacts \
   -compress; then
   echo "Error: Eclipse P2 publisher failed."
+  find "$P2_CONFIGURATION_DIR" -type f -name '*.log' -exec sh -c 'echo "--- $1"; cat "$1"' _ {} \;
+  exit 1
+fi
+
+echo "-> Applying P2 repository categories..."
+if ! java -jar "$LAUNCHER" \
+  -install "$DBEAVER_HOME_DIR" \
+  -configuration "$P2_CONFIGURATION_DIR" \
+  -consoleLog \
+  -application org.eclipse.equinox.p2.publisher.CategoryPublisher \
+  -metadataRepository "file:${SITE_DIR}" \
+  -categoryDefinition "file:${SITE_DIR}/category.xml" \
+  -compress; then
+  echo "Error: Eclipse P2 category publisher failed."
   find "$P2_CONFIGURATION_DIR" -type f -name '*.log' -exec sh -c 'echo "--- $1"; cat "$1"' _ {} \;
   exit 1
 fi
