@@ -53,15 +53,24 @@ jar cf "$FEATURE_JAR" -C "$PROJECT_DIR/feature" feature.xml
 
 echo "-> Running Eclipse Equinox P2 Publisher..."
 P2_CONFIGURATION_DIR=$(mktemp -d)
-trap 'rm -rf "$P2_CONFIGURATION_DIR"' EXIT
-java -jar "$LAUNCHER" \
+cleanup_p2_configuration() {
+  rm -rf "$P2_CONFIGURATION_DIR"
+}
+trap cleanup_p2_configuration EXIT
+
+if ! java -jar "$LAUNCHER" \
   -configuration "$P2_CONFIGURATION_DIR" \
+  -consoleLog \
   -application org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher \
   -metadataRepository "file:${SITE_DIR}" \
   -artifactRepository "file:${SITE_DIR}" \
   -source "$SITE_DIR" \
   -publishArtifacts \
-  -compress
+  -compress; then
+  echo "Error: Eclipse P2 publisher failed."
+  find "$P2_CONFIGURATION_DIR" -type f -name '*.log' -exec sh -c 'echo "--- $1"; cat "$1"' _ {} \;
+  exit 1
+fi
 
 # Create p2.index
 cat <<EOF > "$SITE_DIR/p2.index"
