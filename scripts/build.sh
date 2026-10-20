@@ -10,12 +10,15 @@ echo "=========================================="
 echo "    DBeaver GeoJSON Exporter Builder      "
 echo "=========================================="
 
-# Auto-detect DBeaver plugins installation path
+# Auto-detect DBeaver plugins installation path (Linux & macOS)
 CANDIDATE_DIRS=(
   "$DBEAVER_HOME/plugins"
   "/usr/share/dbeaver-ce/plugins"
   "/usr/share/dbeaver/plugins"
   "/opt/dbeaver/plugins"
+  "/Applications/DBeaver.app/Contents/Eclipse/plugins"
+  "/Applications/DBeaverCE.app/Contents/Eclipse/plugins"
+  "$HOME/Applications/DBeaver.app/Contents/Eclipse/plugins"
   "${PROJECT_DIR}/.dbeaver-lib/plugins"
 )
 

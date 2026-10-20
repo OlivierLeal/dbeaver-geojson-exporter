@@ -4,12 +4,15 @@ set -e
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 JAR_FILE="${PROJECT_DIR}/dist/io.github.dbeaver.export.geojson_1.0.0.jar"
 
-# Auto-detect DBeaver installation directory
+# Auto-detect DBeaver installation directory (Linux & macOS)
 CANDIDATE_DIRS=(
   "$DBEAVER_HOME"
   "/usr/share/dbeaver-ce"
   "/usr/share/dbeaver"
   "/opt/dbeaver"
+  "/Applications/DBeaver.app/Contents/Eclipse"
+  "/Applications/DBeaverCE.app/Contents/Eclipse"
+  "$HOME/Applications/DBeaver.app/Contents/Eclipse"
 )
 
 DBEAVER_DIR=""

@@ -55,31 +55,80 @@ Exporting a query like `SELECT id, name, population, the_geom FROM cities`:
 
 ### Option 1: Quick Install (Pre-built Release)
 
-1. Download the latest `.jar` from the **[Releases](https://github.com/olivier/dbeaver-geojson-exporter/releases)** tab.
-2. Copy it into your DBeaver `plugins/` directory:
-   ```bash
-   sudo cp io.github.dbeaver.export.geojson_1.0.0.jar /usr/share/dbeaver-ce/plugins/
-   ```
-3. Register the bundle into DBeaver's Equinox configurator (`bundles.info`):
-   ```bash
-   echo "io.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false" | sudo tee -a /usr/share/dbeaver-ce/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info
-   ```
-4. Start DBeaver with the `-clean` flag once to rebuild cache:
-   ```bash
-   dbeaver -clean &
-   ```
+Download the latest `.jar` from the **[Releases](https://github.com/olivier/dbeaver-geojson-exporter/releases)** tab and follow the instructions for your OS:
 
-### Option 2: Build and Install from Source (Linux)
-
-Clone the repository and run the automated installer:
+<details open>
+<summary><b>🐧 Linux</b></summary>
 
 ```bash
-git clone https://github.com/olivier/dbeaver-geojson-exporter.git
-cd dbeaver-geojson-exporter
-./scripts/build.sh
-sudo ./scripts/install.sh
+# Copy JAR to DBeaver plugins
+sudo cp io.github.dbeaver.export.geojson_1.0.0.jar /usr/share/dbeaver-ce/plugins/
+
+# Register bundle into Equinox configurator
+echo "io.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false" | sudo tee -a /usr/share/dbeaver-ce/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info
+
+# Launch with -clean
 dbeaver -clean &
 ```
+</details>
+
+<details>
+<summary><b>🍎 macOS</b></summary>
+
+```bash
+# Path inside the macOS DBeaver app bundle
+DBEAVER_APP="/Applications/DBeaver.app/Contents/Eclipse"
+
+# Copy JAR
+cp io.github.dbeaver.export.geojson_1.0.0.jar "$DBEAVER_APP/plugins/"
+
+# Register bundle
+echo "io.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false" >> "$DBEAVER_APP/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info"
+
+# Launch DBeaver
+open -a DBeaver --args -clean
+```
+</details>
+
+<details>
+<summary><b>🪟 Windows (PowerShell as Administrator)</b></summary>
+
+```powershell
+$DBeaverDir = "$env:ProgramFiles\DBeaver"
+
+# Copy JAR
+Copy-Item "io.github.dbeaver.export.geojson_1.0.0.jar" -Destination "$DBeaverDir\plugins\"
+
+# Register bundle
+Add-Content -Path "$DBeaverDir\configuration\org.eclipse.equinox.simpleconfigurator\bundles.info" -Value "`nio.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false"
+
+# Launch DBeaver with clean flag
+Start-Process "$DBeaverDir\dbeaver.exe" -ArgumentList "-clean"
+```
+</details>
+
+---
+
+### Option 2: Automated Install from Source
+
+Clone the repository and run the installer for your operating system:
+
+* **Linux / macOS:**
+  ```bash
+  git clone https://github.com/olivier/dbeaver-geojson-exporter.git
+  cd dbeaver-geojson-exporter
+  ./scripts/build.sh
+  sudo ./scripts/install.sh
+  dbeaver -clean &
+  ```
+
+* **Windows (PowerShell as Administrator):**
+  ```powershell
+  git clone https://github.com/olivier/dbeaver-geojson-exporter.git
+  cd dbeaver-geojson-exporter
+  powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1
+  powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
+  ```
 
 ---
 
@@ -112,12 +161,16 @@ The compiled OSGi bundle will be located at `dist/io.github.dbeaver.export.geojs
 
 ## 🗑️ Uninstalling
 
-To cleanly remove the plugin:
+* **Linux / macOS:**
+  ```bash
+  sudo ./scripts/uninstall.sh
+  dbeaver -clean &
+  ```
 
-```bash
-sudo ./scripts/uninstall.sh
-dbeaver -clean &
-```
+* **Windows (PowerShell as Administrator):**
+  ```powershell
+  powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
+  ```
 
 ---
 
