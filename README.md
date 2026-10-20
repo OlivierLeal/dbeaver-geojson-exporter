@@ -84,7 +84,7 @@ On Windows, start `dbeaver.exe` with `-clean`.
 Requirements:
 
 - DBeaver CE or PRO
-- JDK 17 or 21
+- JDK 25 (required by the current DBeaver CE build)
 
 ```bash
 git clone https://github.com/olivier/dbeaver-geojson-exporter.git

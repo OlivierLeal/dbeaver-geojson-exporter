@@ -10,19 +10,15 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        java: [ '17', '21' ]
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK ${{ matrix.java }}
+      - name: Set up JDK 25
         uses: actions/setup-java@v4
         with:
           distribution: 'temurin'
-          java-version: ${{ matrix.java }}
+          java-version: '25'
 
       - name: Download & Extract DBeaver CE Libraries
         run: |
@@ -48,7 +44,6 @@ jobs:
 
       - name: Upload Build Artifact
         uses: actions/upload-artifact@v4
-        if: matrix.java == '21'
         with:
           name: dbeaver-geojson-exporter-jar
           path: dist/*.jar
