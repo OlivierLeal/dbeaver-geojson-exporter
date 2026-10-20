@@ -1,5 +1,7 @@
 # DBeaver GeoJSON Exporter
 
+[Português](README.pt-BR.md) | **English**
+
 A DBeaver data-transfer plugin that exports query results and database tables as GeoJSON `FeatureCollection` files.
 
 The exporter accepts spatial values supplied by the database driver as well as WKT, WKB, and EWKB. It is intended for PostGIS, SpatiaLite, MySQL Spatial, Oracle Spatial, and other DBeaver connections that expose geometry values.
