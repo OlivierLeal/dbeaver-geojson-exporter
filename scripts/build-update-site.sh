@@ -51,6 +51,25 @@ cp "$PLUGIN_JAR" "$SITE_DIR/plugins/"
 FEATURE_JAR="$SITE_DIR/features/io.github.dbeaver.export.geojson.feature_1.0.1.jar"
 jar cf "$FEATURE_JAR" -C "$PROJECT_DIR/feature" feature.xml
 
+# Define an installable category so Eclipse/DBeaver displays the feature in
+# the "Install New Software" wizard instead of only reporting uncategorized items.
+cat <<EOF > "$SITE_DIR/category.xml"
+<?xml version="1.0" encoding="UTF-8"?>
+<site>
+   <category-def name="io.github.dbeaver.export.geojson.category" label="DBeaver GeoJSON Exporter">
+      <description>
+         Export database query results and tables as GeoJSON FeatureCollection files.
+      </description>
+   </category-def>
+   <feature
+         url="features/io.github.dbeaver.export.geojson.feature_1.0.1.jar"
+         id="io.github.dbeaver.export.geojson.feature"
+         version="1.0.1">
+      <category name="io.github.dbeaver.export.geojson.category"/>
+   </feature>
+</site>
+EOF
+
 echo "-> Running Eclipse Equinox P2 Publisher..."
 P2_CONFIGURATION_DIR=$(mktemp -d)
 DBEAVER_HOME_DIR=$(dirname "$DBEAVER_PLUGINS_DIR")
@@ -76,6 +95,7 @@ if ! java -jar "$LAUNCHER" \
   -application org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher \
   -metadataRepository "file:${SITE_DIR}" \
   -artifactRepository "file:${SITE_DIR}" \
+  -categoryDefinition "file:${SITE_DIR}/category.xml" \
   -source "$SITE_DIR" \
   -publishArtifacts \
   -compress; then
