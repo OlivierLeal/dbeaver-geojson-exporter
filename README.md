@@ -59,10 +59,10 @@ Select **DBeaver GeoJSON Exporter**, finish the installation, and restart DBeave
 
 ### Release JAR
 
-Download `io.github.dbeaver.export.geojson_1.0.0.jar` from the [Releases](https://github.com/olivier/dbeaver-geojson-exporter/releases) page. Copy it into DBeaver's `plugins` directory and add this line to `configuration/org.eclipse.equinox.simpleconfigurator/bundles.info`:
+Download `io.github.dbeaver.export.geojson_1.0.1.jar` from the [Releases](https://github.com/OlivierLeal/dbeaver-geojson-exporter/releases) page. Copy it into DBeaver's `plugins` directory and add this line to `configuration/org.eclipse.equinox.simpleconfigurator/bundles.info`:
 
 ```text
-io.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false
+io.github.dbeaver.export.geojson,1.0.1,plugins/io.github.dbeaver.export.geojson_1.0.1.jar,4,false
 ```
 
 Close every DBeaver window and start it once with the `-clean` flag so Eclipse rebuilds its plugin registry.
@@ -155,7 +155,7 @@ Build the plugin with:
 ./scripts/build.sh
 ```
 
-The generated bundle is `dist/io.github.dbeaver.export.geojson_1.0.0.jar`.
+The generated bundle is `dist/io.github.dbeaver.export.geojson_1.0.1.jar`.
 
 ## License
 

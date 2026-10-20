@@ -2,7 +2,7 @@
 set -e
 
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-JAR_FILE="${PROJECT_DIR}/dist/io.github.dbeaver.export.geojson_1.0.0.jar"
+JAR_FILE="${PROJECT_DIR}/dist/io.github.dbeaver.export.geojson_1.0.1.jar"
 
 # Auto-detect DBeaver installation directory (Linux & macOS)
 CANDIDATE_DIRS=(
@@ -30,8 +30,8 @@ if [ -z "$DBEAVER_DIR" ]; then
 fi
 
 BUNDLES_INFO="${DBEAVER_DIR}/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info"
-PLUGIN_TARGET="${DBEAVER_DIR}/plugins/io.github.dbeaver.export.geojson_1.0.0.jar"
-BUNDLE_ENTRY="io.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false"
+PLUGIN_TARGET="${DBEAVER_DIR}/plugins/io.github.dbeaver.export.geojson_1.0.1.jar"
+BUNDLE_ENTRY="io.github.dbeaver.export.geojson,1.0.1,plugins/io.github.dbeaver.export.geojson_1.0.1.jar,4,false"
 
 if [ "$EUID" -ne 0 ]; then
   echo "Error: Root privileges required."
@@ -48,9 +48,10 @@ fi
 
 echo "-> Installing plugin JAR to ${PLUGIN_TARGET}..."
 cp "$JAR_FILE" "$PLUGIN_TARGET"
+rm -f "${DBEAVER_DIR}/plugins/io.github.dbeaver.export.geojson_1.0.0.jar"
 
 # Remove legacy dropins copy if present
-rm -f "${DBEAVER_DIR}/dropins/io.github.dbeaver.export.geojson_1.0.0.jar" 2>/dev/null || true
+rm -f "${DBEAVER_DIR}/dropins/io.github.dbeaver.export.geojson_1.0.0.jar" "${DBEAVER_DIR}/dropins/io.github.dbeaver.export.geojson_1.0.1.jar" 2>/dev/null || true
 
 # Register the exact bundle entry used by this release. Replacing an existing
 # entry avoids retaining a stale path after a DBeaver or plugin update.

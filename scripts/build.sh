@@ -4,7 +4,7 @@ set -e
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${PROJECT_DIR}/bin"
 DIST_DIR="${PROJECT_DIR}/dist"
-JAR_NAME="io.github.dbeaver.export.geojson_1.0.0.jar"
+JAR_NAME="io.github.dbeaver.export.geojson_1.0.1.jar"
 
 echo "=========================================="
 echo "    DBeaver GeoJSON Exporter Builder      "

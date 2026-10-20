@@ -6,7 +6,7 @@
 
     <groupId>io.github.dbeaver</groupId>
     <artifactId>io.github.dbeaver.export.geojson</artifactId>
-    <version>1.0.0</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
 
     <name>DBeaver GeoJSON Exporter Plugin</name>

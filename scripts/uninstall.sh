@@ -26,7 +26,7 @@ if [ -z "$DBEAVER_DIR" ]; then
 fi
 
 BUNDLES_INFO="${DBEAVER_DIR}/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info"
-PLUGIN_TARGET="${DBEAVER_DIR}/plugins/io.github.dbeaver.export.geojson_1.0.0.jar"
+PLUGIN_TARGET="${DBEAVER_DIR}/plugins/io.github.dbeaver.export.geojson_1.0.1.jar"
 
 if [ "$EUID" -ne 0 ]; then
   echo "Error: Root privileges required."
@@ -42,9 +42,10 @@ if [ -f "$PLUGIN_TARGET" ]; then
   echo "-> Removing plugin JAR from ${PLUGIN_TARGET}..."
   rm -f "$PLUGIN_TARGET"
 fi
+rm -f "${DBEAVER_DIR}/plugins/io.github.dbeaver.export.geojson_1.0.0.jar"
 
 # Remove legacy dropins copy
-rm -f "${DBEAVER_DIR}/dropins/io.github.dbeaver.export.geojson_1.0.0.jar" 2>/dev/null || true
+rm -f "${DBEAVER_DIR}/dropins/io.github.dbeaver.export.geojson_1.0.0.jar" "${DBEAVER_DIR}/dropins/io.github.dbeaver.export.geojson_1.0.1.jar" 2>/dev/null || true
 
 # Remove entry from bundles.info
 if [ -f "$BUNDLES_INFO" ] && grep -q "io.github.dbeaver.export.geojson" "$BUNDLES_INFO"; then

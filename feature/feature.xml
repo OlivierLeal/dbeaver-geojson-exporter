@@ -2,7 +2,7 @@
 <feature
       id="io.github.dbeaver.export.geojson.feature"
       label="DBeaver GeoJSON Exporter"
-      version="1.0.0"
+      version="1.0.1"
       provider-name="DBeaver Community">
 
    <description>
@@ -21,7 +21,7 @@
          id="io.github.dbeaver.export.geojson"
          download-size="0"
          install-size="0"
-         version="1.0.0"
+         version="1.0.1"
          unpack="false"/>
 
 </feature>

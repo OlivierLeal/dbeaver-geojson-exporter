@@ -48,7 +48,7 @@ PLUGIN_JAR=$(ls "$PROJECT_DIR/dist"/*.jar | head -n 1)
 cp "$PLUGIN_JAR" "$SITE_DIR/plugins/"
 
 # Package Feature JAR
-FEATURE_JAR="$SITE_DIR/features/io.github.dbeaver.export.geojson.feature_1.0.0.jar"
+FEATURE_JAR="$SITE_DIR/features/io.github.dbeaver.export.geojson.feature_1.0.1.jar"
 jar cf "$FEATURE_JAR" -C "$PROJECT_DIR/feature" feature.xml
 
 echo "-> Running Eclipse Equinox P2 Publisher..."

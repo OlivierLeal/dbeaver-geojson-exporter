@@ -4,7 +4,7 @@ $ErrorActionPreference = "Stop"
 $ProjectDir = (Get-Item $PSScriptRoot).Parent.FullName
 $BuildDir = Join-Path $ProjectDir "bin"
 $DistDir = Join-Path $ProjectDir "dist"
-$JarName = "io.github.dbeaver.export.geojson_1.0.0.jar"
+$JarName = "io.github.dbeaver.export.geojson_1.0.1.jar"
 
 Write-Host "==========================================" -ForegroundColor Cyan
 Write-Host "    DBeaver GeoJSON Exporter Builder      " -ForegroundColor Cyan
