@@ -149,6 +149,15 @@ Compile o plugin com:
 
 O bundle gerado fica em `dist/io.github.dbeaver.export.geojson_1.0.1.jar`.
 
+Execute os testes do exporter com:
+
+```bash
+./scripts/test.sh
+```
+
+Os testes usam as bibliotecas instaladas do DBeaver e cobrem parsing de WKT,
+metadata de CRS nativo, geometrias nulas e compatibilidade de bytecode com Java 17.
+
 ## Licença
 
 Este projeto está licenciado sob a [Apache License 2.0](LICENSE).

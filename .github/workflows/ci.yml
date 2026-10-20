@@ -33,6 +33,11 @@ jobs:
           chmod +x scripts/build.sh
           ./scripts/build.sh
 
+      - name: Run Exporter Tests
+        run: |
+          chmod +x scripts/test.sh
+          ./scripts/test.sh
+
       - name: Validate Plugin JAR Archive
         run: |
           JAR_FILE=$(ls dist/*.jar)
