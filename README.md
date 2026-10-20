@@ -135,7 +135,7 @@ If DBeaver reports `Processor 'stream.geojson' not found in 'Files'`, it was sta
 
 The format settings are:
 
-- **Reproject to WGS84 (EPSG:4326)**: converts coordinates to longitude and latitude. Enabled by default.
+- **Reproject to WGS84 (EPSG:4326)**: converts coordinates to longitude and latitude. Enabled by default. To keep the geometry in its original coordinate reference system, **uncheck this option**. When reprojection is disabled, the exporter preserves the native coordinates and writes the source EPSG CRS metadata when it is available.
 - **Force 2D coordinates**: removes Z and M dimensions.
 - **File extension**: defaults to `geojson`.
 
