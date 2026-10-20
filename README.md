@@ -52,7 +52,7 @@ the exporter produces output like this:
 In DBeaver, open **Help > Install New Software...**, select **Add...**, and enter the update-site URL:
 
 ```text
-https://olivier.github.io/dbeaver-geojson-exporter/
+https://olivierleal.github.io/dbeaver-geojson-exporter/
 ```
 
 Select **DBeaver GeoJSON Exporter**, finish the installation, and restart DBeaver when prompted.
