@@ -37,6 +37,7 @@ jobs:
           curl -sSL "https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb" -o dbeaver.deb
           dpkg-deb -x dbeaver.deb .dbeaver-lib
           mv .dbeaver-lib/usr/share/dbeaver-ce/plugins .dbeaver-lib/plugins
+          mv .dbeaver-lib/usr/share/dbeaver-ce/configuration .dbeaver-lib/configuration
 
       - name: Build Eclipse P2 Update Site
         run: |

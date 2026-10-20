@@ -53,12 +53,24 @@ jar cf "$FEATURE_JAR" -C "$PROJECT_DIR/feature" feature.xml
 
 echo "-> Running Eclipse Equinox P2 Publisher..."
 P2_CONFIGURATION_DIR=$(mktemp -d)
+DBEAVER_HOME_DIR=$(dirname "$DBEAVER_PLUGINS_DIR")
+SOURCE_CONFIGURATION_DIR="$DBEAVER_HOME_DIR/configuration"
+
+if [ ! -f "$SOURCE_CONFIGURATION_DIR/config.ini" ] || [ ! -d "$SOURCE_CONFIGURATION_DIR/org.eclipse.equinox.simpleconfigurator" ]; then
+  echo "Error: DBeaver Equinox configuration not found in $SOURCE_CONFIGURATION_DIR"
+  exit 1
+fi
+
+cp "$SOURCE_CONFIGURATION_DIR/config.ini" "$P2_CONFIGURATION_DIR/"
+cp -a "$SOURCE_CONFIGURATION_DIR/org.eclipse.equinox.simpleconfigurator" "$P2_CONFIGURATION_DIR/"
+
 cleanup_p2_configuration() {
   rm -rf "$P2_CONFIGURATION_DIR"
 }
 trap cleanup_p2_configuration EXIT
 
 if ! java -jar "$LAUNCHER" \
+  -install "$DBEAVER_HOME_DIR" \
   -configuration "$P2_CONFIGURATION_DIR" \
   -consoleLog \
   -application org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher \
