@@ -52,7 +52,10 @@ FEATURE_JAR="$SITE_DIR/features/io.github.dbeaver.export.geojson.feature_1.0.0.j
 jar cf "$FEATURE_JAR" -C "$PROJECT_DIR/feature" feature.xml
 
 echo "-> Running Eclipse Equinox P2 Publisher..."
+P2_CONFIGURATION_DIR=$(mktemp -d)
+trap 'rm -rf "$P2_CONFIGURATION_DIR"' EXIT
 java -jar "$LAUNCHER" \
+  -configuration "$P2_CONFIGURATION_DIR" \
   -application org.eclipse.equinox.p2.publisher.FeaturesAndBundlesPublisher \
   -metadataRepository "file:${SITE_DIR}" \
   -artifactRepository "file:${SITE_DIR}" \
@@ -86,7 +89,7 @@ cat <<EOF > "$SITE_DIR/index.html"
 </head>
 <body>
   <div class="card">
-    <h1>🗺️ DBeaver GeoJSON Exporter</h1>
+    <h1>DBeaver GeoJSON Exporter</h1>
     <p>This is the official <strong>Eclipse P2 Update Site</strong> repository for the DBeaver GeoJSON Exporter plugin.</p>
     
     <h3>How to install in DBeaver:</h3>
