@@ -53,7 +53,23 @@ Exporting a query like `SELECT id, name, population, the_geom FROM cities`:
 
 ## 🚀 Installation
 
-### Option 1: Quick Install (Pre-built Release)
+### Option 1: Recommended — Via DBeaver UI (Help > Install New Software...)
+
+The easiest and cleanest way to install without touching the terminal or root permissions:
+
+1. Open **DBeaver**.
+2. Go to menu **Help > Install New Software...**
+3. Click the **Add...** button (top right).
+4. Enter:
+   * **Name:** `DBeaver GeoJSON Exporter`
+   * **Location:** `https://<your-github-username>.github.io/dbeaver-geojson-exporter/`
+5. Click **Add**.
+6. Check the **DBeaver GeoJSON Exporter** checkbox.
+7. Click **Next > Next > Finish** and restart DBeaver when prompted!
+
+---
+
+### Option 2: Pre-built Release JAR (Manual / Script)
 
 Download the latest `.jar` from the **[Releases](https://github.com/olivier/dbeaver-geojson-exporter/releases)** tab and follow the instructions for your OS:
 
@@ -109,7 +125,7 @@ Start-Process "$DBeaverDir\dbeaver.exe" -ArgumentList "-clean"
 
 ---
 
-### Option 2: Automated Install from Source
+### Option 3: Automated Install from Source
 
 Clone the repository and run the installer for your operating system:
 

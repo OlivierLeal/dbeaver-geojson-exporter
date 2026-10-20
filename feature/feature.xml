@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feature
+      id="io.github.dbeaver.export.geojson.feature"
+      label="DBeaver GeoJSON Exporter"
+      version="1.0.0"
+      provider-name="DBeaver Community">
+
+   <description>
+      Export database query results and tables directly into standard GeoJSON FeatureCollection format (RFC 7946).
+   </description>
+
+   <copyright>
+      Copyright 2026 Olivier and contributors.
+   </copyright>
+
+   <license url="https://www.apache.org/licenses/LICENSE-2.0">
+      Apache License, Version 2.0
+   </license>
+
+   <plugin
+         id="io.github.dbeaver.export.geojson"
+         download-size="0"
+         install-size="0"
+         version="1.0.0"
+         unpack="false"/>
+
+</feature>

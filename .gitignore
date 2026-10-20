@@ -2,6 +2,8 @@
 bin/
 dist/
 target/
+site/
+.dbeaver-lib/
 
 # Bytecode
 *.class
