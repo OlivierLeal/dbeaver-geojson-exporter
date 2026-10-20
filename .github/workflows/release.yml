@@ -1,0 +1,43 @@
+name: Release - Build & Publish Assets
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Download & Extract DBeaver CE Libraries
+        run: |
+          mkdir -p .dbeaver-lib
+          echo "Downloading latest DBeaver CE deb..."
+          curl -sSL "https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb" -o dbeaver.deb
+          dpkg-deb -x dbeaver.deb .dbeaver-lib
+          mv .dbeaver-lib/usr/share/dbeaver-ce/plugins .dbeaver-lib/plugins
+
+      - name: Compile and Package Plugin
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Create GitHub Release and Upload JAR
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.jar
+          generate_release_notes: true
+          draft: false
+          prerelease: false

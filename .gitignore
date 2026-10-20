@@ -1,0 +1,22 @@
+# Build and distribution directories
+bin/
+dist/
+target/
+
+# Bytecode
+*.class
+
+# Eclipse & IDE metadata
+.project
+.classpath
+.settings/
+.idea/
+.vscode/
+*.iml
+
+# OS and Temp files
+.DS_Store
+Thumbs.db
+*.bak
+*.tmp
+*.log

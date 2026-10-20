@@ -1,0 +1,54 @@
+name: CI - Build and Test
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [ '17', '21' ]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: ${{ matrix.java }}
+
+      - name: Download & Extract DBeaver CE Libraries
+        run: |
+          mkdir -p .dbeaver-lib
+          echo "Downloading latest DBeaver CE deb..."
+          curl -sSL "https://dbeaver.io/files/dbeaver-ce_latest_amd64.deb" -o dbeaver.deb
+          dpkg-deb -x dbeaver.deb .dbeaver-lib
+          mv .dbeaver-lib/usr/share/dbeaver-ce/plugins .dbeaver-lib/plugins
+
+      - name: Run Build Script
+        run: |
+          chmod +x build.sh
+          ./build.sh
+
+      - name: Validate Plugin JAR Archive
+        run: |
+          JAR_FILE=$(ls dist/*.jar)
+          echo "Testing JAR: $JAR_FILE"
+          jar tf "$JAR_FILE" | grep "GeoJsonDataExporter.class"
+          jar tf "$JAR_FILE" | grep "plugin.xml"
+          jar tf "$JAR_FILE" | grep "META-INF/MANIFEST.MF"
+          echo "Validation successful!"
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        if: matrix.java == '21'
+        with:
+          name: dbeaver-geojson-exporter-jar
+          path: dist/*.jar

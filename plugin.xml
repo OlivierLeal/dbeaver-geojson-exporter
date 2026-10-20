@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+    <extension point="org.jkiss.dbeaver.dataTransfer">
+        <node ref="stream_consumer">
+            <processor
+                    id="stream.geojson"
+                    shortId="geojson"
+                    class="io.github.dbeaver.export.geojson.GeoJsonDataExporter"
+                    description="Export query results as GeoJSON FeatureCollection (RFC 7946)"
+                    icon="icons/geojson.svg"
+                    label="GeoJSON"
+                    contentType="application/geo+json">
+                <propertyGroup label="General">
+                    <property id="extension" label="File extension" defaultValue="geojson"/>
+                    <property id="reprojectTo4326" label="Reproject to WGS84 (EPSG:4326)" type="boolean" defaultValue="true" validValues="true,false"/>
+                    <property id="force2D" label="Force 2D coordinates" type="boolean" defaultValue="true" validValues="true,false"/>
+                </propertyGroup>
+            </processor>
+        </node>
+    </extension>
+</plugin>

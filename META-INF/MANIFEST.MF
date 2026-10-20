@@ -1,0 +1,13 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: DBeaver GeoJSON Exporter
+Bundle-SymbolicName: io.github.dbeaver.export.geojson;singleton:=true
+Bundle-Version: 1.0.0
+Bundle-Vendor: Olivier
+Require-Bundle: org.eclipse.core.runtime,
+ org.jkiss.dbeaver.model,
+ org.jkiss.dbeaver.data.transfer,
+ org.jkiss.dbeaver.data.gis,
+ org.jkiss.bundle.gis
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Bundle-ActivationPolicy: lazy
