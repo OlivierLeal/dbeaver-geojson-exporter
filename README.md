@@ -57,6 +57,11 @@ https://olivierleal.github.io/dbeaver-geojson-exporter/
 
 Select **DBeaver GeoJSON Exporter**, finish the installation, and restart DBeaver when prompted.
 
+The update site publishes the plugin compiled for Java 17, so it can be loaded by
+DBeaver installations running Java 17 or newer. If DBeaver has an older cached
+installation of the plugin, remove that installation, reload the update site,
+and install the current version again.
+
 ### Release JAR
 
 Download `io.github.dbeaver.export.geojson_1.0.1.jar` from the [Releases](https://github.com/OlivierLeal/dbeaver-geojson-exporter/releases) page. Copy it into DBeaver's `plugins` directory and add this line to `configuration/org.eclipse.equinox.simpleconfigurator/bundles.info`:
@@ -84,10 +89,13 @@ On Windows, start `dbeaver.exe` with `-clean`.
 Requirements:
 
 - DBeaver CE or PRO
-- JDK 25 (required by the current DBeaver CE build)
+- JDK 25 (required to compile against the current DBeaver CE libraries)
+
+The build uses `--release 17`, so the generated plugin remains compatible with
+DBeaver installations running Java 17 or newer.
 
 ```bash
-git clone https://github.com/olivier/dbeaver-geojson-exporter.git
+git clone https://github.com/OlivierLeal/dbeaver-geojson-exporter.git
 cd dbeaver-geojson-exporter
 ./scripts/build.sh
 sudo ./scripts/install.sh
