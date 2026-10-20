@@ -62,9 +62,8 @@ cat <<EOF > "$SITE_DIR/category.xml"
       </description>
    </category-def>
    <feature
-         url="features/io.github.dbeaver.export.geojson.feature_1.0.1.jar"
          id="io.github.dbeaver.export.geojson.feature"
-         version="1.0.1">
+         version="0.0.0">
       <category name="io.github.dbeaver.export.geojson.category"/>
    </feature>
 </site>
