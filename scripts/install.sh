@@ -1,0 +1,62 @@
+#!/usr/bin/env bash
+set -e
+
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+JAR_FILE="${PROJECT_DIR}/dist/io.github.dbeaver.export.geojson_1.0.0.jar"
+
+# Auto-detect DBeaver installation directory
+CANDIDATE_DIRS=(
+  "$DBEAVER_HOME"
+  "/usr/share/dbeaver-ce"
+  "/usr/share/dbeaver"
+  "/opt/dbeaver"
+)
+
+DBEAVER_DIR=""
+for dir in "${CANDIDATE_DIRS[@]}"; do
+  if [ -n "$dir" ] && [ -d "$dir/plugins" ]; then
+    DBEAVER_DIR="$dir"
+    break
+  fi
+done
+
+if [ -z "$DBEAVER_DIR" ]; then
+  echo "Error: DBeaver installation directory not found."
+  echo "Please set DBEAVER_HOME to your DBeaver installation path."
+  exit 1
+fi
+
+BUNDLES_INFO="${DBEAVER_DIR}/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info"
+PLUGIN_TARGET="${DBEAVER_DIR}/plugins/io.github.dbeaver.export.geojson_1.0.0.jar"
+BUNDLE_ENTRY="io.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false"
+
+if [ "$EUID" -ne 0 ]; then
+  echo "Error: Root privileges required."
+  echo "Please run with sudo:"
+  echo "  sudo ./scripts/install.sh"
+  exit 1
+fi
+
+if [ ! -f "$JAR_FILE" ]; then
+  echo "Error: Built JAR not found at $JAR_FILE."
+  echo "Please run ./scripts/build.sh first."
+  exit 1
+fi
+
+echo "-> Installing plugin JAR to ${PLUGIN_TARGET}..."
+cp "$JAR_FILE" "$PLUGIN_TARGET"
+
+# Remove legacy dropins copy if present
+rm -f "${DBEAVER_DIR}/dropins/io.github.dbeaver.export.geojson_1.0.0.jar" 2>/dev/null || true
+
+# Register bundle into Equinox simpleconfigurator (bundles.info)
+if ! grep -q "io.github.dbeaver.export.geojson" "$BUNDLES_INFO"; then
+  echo "-> Registering bundle in Equinox simpleconfigurator..."
+  cp "$BUNDLES_INFO" "${BUNDLES_INFO}.bak"
+  echo "$BUNDLE_ENTRY" >> "$BUNDLES_INFO"
+else
+  echo "-> Bundle already registered in bundles.info."
+fi
+
+echo "=== Installation Completed Successfully! ==="
+echo "Restart DBeaver with: dbeaver -clean &"

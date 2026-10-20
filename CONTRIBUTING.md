@@ -18,8 +18,8 @@ Thank you for considering contributing to **DBeaver GeoJSON Exporter**! 🎉
 2. Create a new branch: `git checkout -b feature/my-new-feature`
 3. Make your changes and test them locally:
    ```bash
-   ./build.sh
-   sudo ./install.sh
+   ./scripts/build.sh
+   sudo ./scripts/install.sh
    ```
 4. Commit your changes: `git commit -am 'Add some feature'`
 5. Push to the branch: `git push origin feature/my-new-feature`

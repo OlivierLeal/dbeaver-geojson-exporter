@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${PROJECT_DIR}/bin"
 DIST_DIR="${PROJECT_DIR}/dist"
 JAR_NAME="io.github.dbeaver.export.geojson_1.0.0.jar"
@@ -10,7 +10,7 @@ echo "=========================================="
 echo "    DBeaver GeoJSON Exporter Builder      "
 echo "=========================================="
 
-# Localiza o diretório de plugins do DBeaver
+# Auto-detect DBeaver plugins installation path
 CANDIDATE_DIRS=(
   "$DBEAVER_HOME/plugins"
   "/usr/share/dbeaver-ce/plugins"
@@ -28,34 +28,34 @@ for dir in "${CANDIDATE_DIRS[@]}"; do
 done
 
 if [ -z "$DBEAVER_PLUGINS_DIR" ]; then
-  echo "Erro: Não foi possível localizar os plugins do DBeaver."
-  echo "Defina a variável DBEAVER_HOME apontando para o diretório de instalação do DBeaver."
-  echo "Exemplo: export DBEAVER_HOME=/usr/share/dbeaver-ce"
+  echo "Error: DBeaver plugins directory not found."
+  echo "Please set DBEAVER_HOME to your DBeaver installation path."
+  echo "Example: export DBEAVER_HOME=/usr/share/dbeaver-ce"
   exit 1
 fi
 
-echo "-> Usando bibliotecas do DBeaver em: $DBEAVER_PLUGINS_DIR"
+echo "-> Using DBeaver libraries from: $DBEAVER_PLUGINS_DIR"
 
 rm -rf "$BUILD_DIR" "$DIST_DIR"
 mkdir -p "$BUILD_DIR" "$DIST_DIR"
 
-# Monta o Classpath dinâmico
+# Assemble dynamic classpath
 CP=$(find "$DBEAVER_PLUGINS_DIR" -name "*.jar" | tr '\n' ':')
 
-echo "-> Compilando código Java..."
+echo "-> Compiling Java sources..."
 javac -cp "$CP" -d "$BUILD_DIR" \
     "$PROJECT_DIR"/src/io/github/dbeaver/export/geojson/GeoJsonDataExporter.java
 
-echo "-> Empacotando JAR OSGi..."
+echo "-> Packaging OSGi bundle JAR..."
 jar cfm "${DIST_DIR}/${JAR_NAME}" \
     "${PROJECT_DIR}/META-INF/MANIFEST.MF" \
     -C "$BUILD_DIR" . \
-    plugin.xml \
-    icons
+    -C "${PROJECT_DIR}" plugin.xml \
+    -C "${PROJECT_DIR}" icons
 
-echo "=== Sucesso! ==="
-echo "Arquivo gerado: ${DIST_DIR}/${JAR_NAME}"
+echo "=== Build Successful! ==="
+echo "Artifact generated: ${DIST_DIR}/${JAR_NAME}"
 echo ""
-echo "Para instalar no DBeaver:"
-echo "  sudo ./install.sh"
-echo "E depois abra com: dbeaver -clean &"
+echo "To install on local DBeaver instance:"
+echo "  sudo ./scripts/install.sh"
+echo "Then launch DBeaver with: dbeaver -clean &"

@@ -31,8 +31,8 @@ jobs:
 
       - name: Compile and Package Plugin
         run: |
-          chmod +x build.sh
-          ./build.sh
+          chmod +x scripts/build.sh
+          ./scripts/build.sh
 
       - name: Create GitHub Release and Upload JAR
         uses: softprops/action-gh-release@v2

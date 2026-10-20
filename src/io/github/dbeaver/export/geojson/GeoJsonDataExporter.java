@@ -20,11 +20,21 @@ import java.io.PrintWriter;
 import java.util.Map;
 
 /**
- * Exportador DBeaver para o formato GeoJSON.
- * - Quando reprojectTo4326 == true: Gera GeoJSON RFC 7946 estrito em EPSG:4326 (WGS84) sem membro CRS.
- * - Quando reprojectTo4326 == false: Preserva coordenadas nativas e declara o membro CRS com o EPSG de origem.
+ * DBeaver Data Exporter for GeoJSON format.
+ * <p>
+ * Complies with the RFC 7946 GeoJSON specification:
+ * <ul>
+ *   <li>When {@code reprojectTo4326} is true: reprojects geometries to WGS 84 (EPSG:4326) and omits the legacy 'crs' member.</li>
+ *   <li>When {@code reprojectTo4326} is false: preserves native coordinates and declares the OGC CRS member on the FeatureCollection.</li>
+ *   <li>Enforces right-hand rule (counter-clockwise) for polygon outer rings.</li>
+ * </ul>
  */
 public class GeoJsonDataExporter extends StreamExporterAbstract {
+
+    private static final String PROP_FORCE_2D = "force2D";
+    private static final String PROP_REPROJECT_TO_4326 = "reprojectTo4326";
+    private static final String GEOMETRY_DEFAULT_KEY = "geometry";
+    private static final int WGS84_SRID = 4326;
 
     private PrintWriter writer;
     private DBDAttributeBinding[] columns;
@@ -43,20 +53,20 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
         super.init(site);
         this.writer = site.getWriter();
         this.geoJsonWriter = new GeoJsonWriter();
-        this.geoJsonWriter.setEncodeCRS(false); // Mantém geometrias limpas (CRS vai na raiz da FeatureCollection se necessário)
-        this.geoJsonWriter.setForceCCW(true);   // RFC 7946 regra da mão direita
+        this.geoJsonWriter.setEncodeCRS(false); // Clean geometries (CRS placed at FeatureCollection root if needed)
+        this.geoJsonWriter.setForceCCW(true);   // RFC 7946 right-hand rule
         this.wktReader = new WKTReader();
         this.wkbReader = new WKBReader();
 
-        // Leitura de propriedades configuráveis
+        // Read user-defined configuration properties
         Map<String, Object> properties = site.getProperties();
         if (properties != null) {
-            if (properties.containsKey("force2D")) {
-                Object val = properties.get("force2D");
+            if (properties.containsKey(PROP_FORCE_2D)) {
+                Object val = properties.get(PROP_FORCE_2D);
                 this.force2D = val instanceof Boolean ? (Boolean) val : Boolean.parseBoolean(String.valueOf(val));
             }
-            if (properties.containsKey("reprojectTo4326")) {
-                Object val = properties.get("reprojectTo4326");
+            if (properties.containsKey(PROP_REPROJECT_TO_4326)) {
+                Object val = properties.get(PROP_REPROJECT_TO_4326);
                 this.reprojectTo4326 = val instanceof Boolean ? (Boolean) val : Boolean.parseBoolean(String.valueOf(val));
             }
         }
@@ -78,7 +88,7 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
 
             if (typeName.contains("geometry") || typeName.contains("geography") || typeName.contains("spatial")
                     || typeName.equals("point") || typeName.equals("polygon") || typeName.equals("linestring")
-                    || name.equals("geom") || name.equals("the_geom") || name.equals("geometry")) {
+                    || name.equals("geom") || name.equals("the_geom") || name.equals(GEOMETRY_DEFAULT_KEY)) {
                 geometryColumnIndex = i;
                 break;
             }
@@ -104,10 +114,9 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
         writer.println("{");
         writer.println("  \"type\": \"FeatureCollection\",");
 
-        // Se o usuário optou por NÃO reprojetar e o dado possui SRID definido diferente de 4326:
-        // Declaramos formalmente o CRS no nível da FeatureCollection para que leitores GIS (QGIS, GDAL)
-        // saibam exatamente qual o sistema de projeção correto.
-        if (!reprojectTo4326 && srid != 0 && srid != 4326) {
+        // When reprojection is disabled and native SRID is not WGS84, declare OGC CRS metadata
+        // at the FeatureCollection root so GIS tools (QGIS, GDAL, ArcGIS) correctly identify the projection.
+        if (!reprojectTo4326 && srid != 0 && srid != WGS84_SRID) {
             writer.println("  \"crs\": {");
             writer.println("    \"type\": \"name\",");
             writer.println("    \"properties\": {");
@@ -130,7 +139,7 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
             this.columns = getSite().getAttributes();
         }
 
-        // Se ainda não detectou a coluna geométrica, tenta inspecionar os objetos da linha
+        // Lazy fallback detection of geometry column by inspecting row object instances
         if (geometryColumnIndex == -1) {
             for (int i = 0; i < row.length; i++) {
                 if (row[i] instanceof DBGeometry || row[i] instanceof Geometry) {
@@ -140,7 +149,7 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
             }
         }
 
-        // Na primeira linha, detecta o SRID da amostra e escreve o cabeçalho apropriado
+        // On the first row, determine the spatial reference system and output the FeatureCollection header
         if (!headerWritten) {
             int srid = extractSRID(row);
             this.detectedDatasetSRID = srid;
@@ -155,19 +164,19 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
         writer.println("    {");
         writer.println("      \"type\": \"Feature\",");
 
-        // 1. Geometria
+        // 1. Geometry serialization
         writer.print("      \"geometry\": ");
         writeGeometry(row);
         writer.println(",");
 
-        // 2. Propriedades (demais atributos)
+        // 2. Alphanumeric properties
         writer.println("      \"properties\": {");
         boolean firstProp = true;
         int numCols = (columns != null) ? columns.length : row.length;
 
         for (int i = 0; i < numCols; i++) {
             if (i == geometryColumnIndex) {
-                continue; // A geometria já foi escrita no campo 'geometry'
+                continue; // Geometry column is already mapped into the 'geometry' member
             }
 
             if (!firstProp) {
@@ -240,13 +249,13 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
             } else if (geomObj != null) {
                 String str = geomObj.toString().trim();
 
-                // Se já for uma string GeoJSON bruta
+                // If already formatted as raw GeoJSON string
                 if (str.startsWith("{") && str.endsWith("}")) {
                     writer.print(str);
                     return;
                 }
 
-                // Extrai prefixo SRID do PostGIS (ex: "SRID=31984;POINT(...)")
+                // Parse PostGIS EWKT prefix (e.g., "SRID=31984;POINT(...)")
                 if (str.startsWith("SRID=") || str.startsWith("srid=")) {
                     int scIndex = str.indexOf(';');
                     if (scIndex > 0) {
@@ -258,14 +267,14 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
                     }
                 }
 
-                // Tenta ler como WKT
+                // Attempt WKT parsing
                 try {
                     jtsGeom = wktReader.read(str);
                     if (srid == 0) {
                         srid = jtsGeom.getSRID();
                     }
                 } catch (Exception ignored) {
-                    // Tenta ler como Hex WKB
+                    // Fallback to Hex EWKB parsing
                     try {
                         byte[] bytes = WKBReader.hexToBytes(str);
                         jtsGeom = wkbReader.read(bytes);
@@ -278,19 +287,20 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
             }
 
             if (jtsGeom != null) {
-                // 1. Reprojeção para WGS84 se configurado
-                if (reprojectTo4326 && srid != 0 && srid != 4326) {
+                // 1. Reproject to WGS84 (EPSG:4326) if enabled and coordinates are in a projected system
+                if (reprojectTo4326 && srid != 0 && srid != WGS84_SRID) {
                     try {
                         DBGeometry toTransform = new DBGeometry(jtsGeom, srid);
-                        DBGeometry transformed = GisTransformUtils.transformToSRID(toTransform, 4326);
+                        DBGeometry transformed = GisTransformUtils.transformToSRID(toTransform, WGS84_SRID);
                         if (transformed != null && transformed.getGeometry() != null) {
                             jtsGeom = transformed.getGeometry();
                         }
                     } catch (Exception ignored) {
+                        // Fallback: preserve original geometry if transformation fails
                     }
                 }
 
-                // 2. Force 2D se configurado
+                // 2. Force 2D if enabled
                 if (force2D) {
                     try {
                         DBGeometry db2D = new DBGeometry(jtsGeom).force2D();
@@ -301,8 +311,7 @@ public class GeoJsonDataExporter extends StreamExporterAbstract {
                     }
                 }
 
-                // Limpa SRID para que o GeoJsonWriter não insira bloco 'crs' dentro da geometria
-                // (O CRS já está definido no topo do FeatureCollection se necessário)
+                // Clear JTS SRID to ensure clean geometry payload without inner CRS blocks
                 jtsGeom.setSRID(0);
 
                 String geoJsonString = geoJsonWriter.write(jtsGeom);

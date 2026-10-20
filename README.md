@@ -76,8 +76,8 @@ Clone the repository and run the automated installer:
 ```bash
 git clone https://github.com/olivier/dbeaver-geojson-exporter.git
 cd dbeaver-geojson-exporter
-./build.sh
-sudo ./install.sh
+./scripts/build.sh
+sudo ./scripts/install.sh
 dbeaver -clean &
 ```
 
@@ -104,7 +104,7 @@ dbeaver -clean &
 
 ### Build Command
 ```bash
-./build.sh
+./scripts/build.sh
 ```
 The compiled OSGi bundle will be located at `dist/io.github.dbeaver.export.geojson_1.0.0.jar`.
 
@@ -115,7 +115,7 @@ The compiled OSGi bundle will be located at `dist/io.github.dbeaver.export.geojs
 To cleanly remove the plugin:
 
 ```bash
-sudo ./uninstall.sh
+sudo ./scripts/uninstall.sh
 dbeaver -clean &
 ```
 
