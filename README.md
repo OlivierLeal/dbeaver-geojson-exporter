@@ -1,33 +1,29 @@
-# DBeaver GeoJSON Exporter Plugin 🗺️
+# DBeaver GeoJSON Exporter
 
-[![CI - Build and Test](https://github.com/olivier/dbeaver-geojson-exporter/actions/workflows/ci.yml/badge.svg)](https://github.com/olivier/dbeaver-geojson-exporter/actions/workflows/ci.yml)
-[![License](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Java](https://img.shields.io/badge/Java-17%20%7C%2021-orange.svg)](https://adoptium.net/)
-[![DBeaver](https://img.shields.io/badge/DBeaver-CE%20%7C%20PRO-2E7D32.svg)](https://dbeaver.io/)
-[![GeoJSON](https://img.shields.io/badge/GeoJSON-RFC_7946-4CAF50.svg)](https://tools.ietf.org/html/rfc7946)
+A DBeaver data-transfer plugin that exports query results and database tables as GeoJSON `FeatureCollection` files.
 
-A native export plugin for **[DBeaver](https://dbeaver.io/)** that allows you to directly export query results and database tables containing spatial data into standard **GeoJSON (`FeatureCollection`)** files.
+The exporter accepts spatial values supplied by the database driver as well as WKT, WKB, and EWKB. It is intended for PostGIS, SpatiaLite, MySQL Spatial, Oracle Spatial, and other DBeaver connections that expose geometry values.
 
-Works seamlessly with **PostGIS**, **SpatiaLite**, **MySQL Spatial**, **Oracle Spatial**, WKT, WKB, and EWKB.
+## Features
 
----
+- Adds **GeoJSON** to DBeaver's **Export Data** wizard.
+- Writes GeoJSON `FeatureCollection` output.
+- Detects common geometry columns such as `geom`, `the_geom`, and `geometry`.
+- Places non-spatial columns in each feature's `properties` member.
+- Reprojects to WGS 84 (EPSG:4326) by default, as required by RFC 7946.
+- Can preserve the source coordinate system and write its CRS metadata.
+- Can remove Z and M coordinates.
+- Writes polygon rings using the RFC 7946 right-hand rule.
 
-## ⚡ Highlights & Features
+## Example
 
-* 📍 **Native Data Transfer Wizard Integration:** Appears directly as **GeoJSON** in DBeaver's *Export Data* formats list.
-* 🌐 **Automatic WGS 84 (EPSG:4326) Reprojection:** Follows the **RFC 7946** standard by automatically reprojection projected coordinates (e.g., UTM, SIRGAS 2000, Web Mercator) into standard `[longitude, latitude]` degrees using DBeaver's built-in geodetic engine.
-* 🧭 **Smart CRS Handling:**
-  * **When Reprojection is enabled (`true`):** Strict RFC 7946 adherence (no legacy `crs` block).
-  * **When Reprojection is disabled (`false`):** Coordinates remain in native system (e.g., meters) and an OGC-compliant `crs` header (`urn:ogc:def:crs:EPSG::<SRID>`) is added so QGIS and GIS viewers automatically know the exact projection.
-* 📦 **Automatic Feature & Properties Mapping:** Automatically identifies the spatial column (`geom`, `the_geom`, `geometry`, etc.) for the `geometry` field, and packs all other columns into the `properties` dictionary.
-* 📐 **2D Enforcement Option (`force2D`):** Strips Z/M dimensions if desired to keep files compact and web-ready.
-* 🔄 **Polygon Orientation (RFC 7946):** Enforces the right-hand rule (counter-clockwise exterior rings) for standard polygon encoding.
+Given the following query:
 
----
+```sql
+SELECT id, name, population, the_geom FROM cities;
+```
 
-## 📄 Example Output
-
-Exporting a query like `SELECT id, name, population, the_geom FROM cities`:
+the exporter produces output like this:
 
 ```json
 {
@@ -49,153 +45,118 @@ Exporting a query like `SELECT id, name, population, the_geom FROM cities`:
 }
 ```
 
----
+## Installation
 
-## 🚀 Installation
+### Update site
 
-### Option 1: Recommended — Via DBeaver UI (Help > Install New Software...)
+In DBeaver, open **Help > Install New Software...**, select **Add...**, and enter the update-site URL:
 
-The easiest and cleanest way to install without touching the terminal or root permissions:
-
-1. Open **DBeaver**.
-2. Go to menu **Help > Install New Software...**
-3. Click the **Add...** button (top right).
-4. Enter:
-   * **Name:** `DBeaver GeoJSON Exporter`
-   * **Location:** `https://<your-github-username>.github.io/dbeaver-geojson-exporter/`
-5. Click **Add**.
-6. Check the **DBeaver GeoJSON Exporter** checkbox.
-7. Click **Next > Next > Finish** and restart DBeaver when prompted!
-
----
-
-### Option 2: Pre-built Release JAR (Manual / Script)
-
-Download the latest `.jar` from the **[Releases](https://github.com/olivier/dbeaver-geojson-exporter/releases)** tab and follow the instructions for your OS:
-
-<details open>
-<summary><b>🐧 Linux</b></summary>
-
-```bash
-# Copy JAR to DBeaver plugins
-sudo cp io.github.dbeaver.export.geojson_1.0.0.jar /usr/share/dbeaver-ce/plugins/
-
-# Register bundle into Equinox configurator
-echo "io.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false" | sudo tee -a /usr/share/dbeaver-ce/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info
-
-# Launch with -clean
-dbeaver -clean &
+```text
+https://olivier.github.io/dbeaver-geojson-exporter/
 ```
-</details>
 
-<details>
-<summary><b>🍎 macOS</b></summary>
+Select **DBeaver GeoJSON Exporter**, finish the installation, and restart DBeaver when prompted.
+
+### Release JAR
+
+Download `io.github.dbeaver.export.geojson_1.0.0.jar` from the [Releases](https://github.com/olivier/dbeaver-geojson-exporter/releases) page. Copy it into DBeaver's `plugins` directory and add this line to `configuration/org.eclipse.equinox.simpleconfigurator/bundles.info`:
+
+```text
+io.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false
+```
+
+Close every DBeaver window and start it once with the `-clean` flag so Eclipse rebuilds its plugin registry.
 
 ```bash
-# Path inside the macOS DBeaver app bundle
-DBEAVER_APP="/Applications/DBeaver.app/Contents/Eclipse"
+dbeaver -clean
+```
 
-# Copy JAR
-cp io.github.dbeaver.export.geojson_1.0.0.jar "$DBEAVER_APP/plugins/"
+On macOS, use:
 
-# Register bundle
-echo "io.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false" >> "$DBEAVER_APP/configuration/org.eclipse.equinox.simpleconfigurator/bundles.info"
-
-# Launch DBeaver
+```bash
 open -a DBeaver --args -clean
 ```
-</details>
 
-<details>
-<summary><b>🪟 Windows (PowerShell as Administrator)</b></summary>
+On Windows, start `dbeaver.exe` with `-clean`.
+
+### Build and install from source
+
+Requirements:
+
+- DBeaver CE or PRO
+- JDK 17 or 21
+
+```bash
+git clone https://github.com/olivier/dbeaver-geojson-exporter.git
+cd dbeaver-geojson-exporter
+./scripts/build.sh
+sudo ./scripts/install.sh
+```
+
+Then close DBeaver and run:
+
+```bash
+dbeaver -clean
+```
+
+For a non-standard DBeaver installation, set `DBEAVER_HOME` before building and installing:
+
+```bash
+export DBEAVER_HOME=/path/to/dbeaver
+./scripts/build.sh
+sudo -E ./scripts/install.sh
+dbeaver -clean
+```
+
+On Windows, run the PowerShell scripts from an elevated PowerShell session when DBeaver is installed under `Program Files`:
 
 ```powershell
-$DBeaverDir = "$env:ProgramFiles\DBeaver"
-
-# Copy JAR
-Copy-Item "io.github.dbeaver.export.geojson_1.0.0.jar" -Destination "$DBeaverDir\plugins\"
-
-# Register bundle
-Add-Content -Path "$DBeaverDir\configuration\org.eclipse.equinox.simpleconfigurator\bundles.info" -Value "`nio.github.dbeaver.export.geojson,1.0.0,plugins/io.github.dbeaver.export.geojson_1.0.0.jar,4,false"
-
-# Launch DBeaver with clean flag
-Start-Process "$DBeaverDir\dbeaver.exe" -ArgumentList "-clean"
+powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1
+powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
+Start-Process dbeaver.exe -ArgumentList "-clean"
 ```
-</details>
 
----
+If DBeaver reports `Processor 'stream.geojson' not found in 'Files'`, it was started with an outdated plugin registry. Close every instance and run it once with `-clean`.
 
-### Option 3: Automated Install from Source
+## Usage
 
-Clone the repository and run the installer for your operating system:
+1. Run a query that includes a spatial column.
+2. In the result grid, choose **Export Data**.
+3. Under **Files**, select **GeoJSON**.
+4. Choose the output path and proceed.
 
-* **Linux / macOS:**
-  ```bash
-  git clone https://github.com/olivier/dbeaver-geojson-exporter.git
-  cd dbeaver-geojson-exporter
-  ./scripts/build.sh
-  sudo ./scripts/install.sh
-  dbeaver -clean &
-  ```
+The format settings are:
 
-* **Windows (PowerShell as Administrator):**
-  ```powershell
-  git clone https://github.com/olivier/dbeaver-geojson-exporter.git
-  cd dbeaver-geojson-exporter
-  powershell -ExecutionPolicy Bypass -File .\scripts\build.ps1
-  powershell -ExecutionPolicy Bypass -File .\scripts\install.ps1
-  ```
+- **Reproject to WGS84 (EPSG:4326)**: converts coordinates to longitude and latitude. Enabled by default.
+- **Force 2D coordinates**: removes Z and M dimensions.
+- **File extension**: defaults to `geojson`.
 
----
+## Uninstall
 
-## 🛠️ Usage in DBeaver
+On Linux or macOS:
 
-1. Open **DBeaver** and execute any query with spatial data (e.g. `SELECT * FROM my_spatial_table;`).
-2. Right-click anywhere on the Results Grid > **Export Data**.
-3. Choose **GeoJSON** from the format list and click **Next**.
-4. In the **Format Settings** screen, you can customize:
-   * **`Reproject to WGS84 (EPSG:4326)`** (`true` / `false`): Converts coordinates to WGS 84.
-   * **`Force 2D coordinates`** (`true` / `false`): Converts 3D/4D geometries to 2D `[X, Y]`.
-   * **`File extension`**: Output extension (default: `geojson`).
-5. Choose destination folder and click **Proceed**!
+```bash
+sudo ./scripts/uninstall.sh
+dbeaver -clean
+```
 
----
+On Windows:
 
-## 🏗️ Building & Development
+```powershell
+powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
+Start-Process dbeaver.exe -ArgumentList "-clean"
+```
 
-### Prerequisites
-- Java JDK 17 or 21.
-- DBeaver CE or PRO installed locally (or set `DBEAVER_HOME`).
+## Development
 
-### Build Command
+Build the plugin with:
+
 ```bash
 ./scripts/build.sh
 ```
-The compiled OSGi bundle will be located at `dist/io.github.dbeaver.export.geojson_1.0.0.jar`.
 
----
+The generated bundle is `dist/io.github.dbeaver.export.geojson_1.0.0.jar`.
 
-## 🗑️ Uninstalling
+## License
 
-* **Linux / macOS:**
-  ```bash
-  sudo ./scripts/uninstall.sh
-  dbeaver -clean &
-  ```
-
-* **Windows (PowerShell as Administrator):**
-  ```powershell
-  powershell -ExecutionPolicy Bypass -File .\scripts\uninstall.ps1
-  ```
-
----
-
-## 🤝 Contributing
-
-Contributions are very welcome! Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and development process.
-
----
-
-## ⚖️ License
-
-This project is licensed under the **Apache License 2.0** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the [Apache License 2.0](LICENSE).

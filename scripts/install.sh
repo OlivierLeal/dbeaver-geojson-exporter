@@ -52,14 +52,19 @@ cp "$JAR_FILE" "$PLUGIN_TARGET"
 # Remove legacy dropins copy if present
 rm -f "${DBEAVER_DIR}/dropins/io.github.dbeaver.export.geojson_1.0.0.jar" 2>/dev/null || true
 
-# Register bundle into Equinox simpleconfigurator (bundles.info)
-if ! grep -q "io.github.dbeaver.export.geojson" "$BUNDLES_INFO"; then
-  echo "-> Registering bundle in Equinox simpleconfigurator..."
-  cp "$BUNDLES_INFO" "${BUNDLES_INFO}.bak"
-  echo "$BUNDLE_ENTRY" >> "$BUNDLES_INFO"
-else
-  echo "-> Bundle already registered in bundles.info."
+# Register the exact bundle entry used by this release. Replacing an existing
+# entry avoids retaining a stale path after a DBeaver or plugin update.
+if [ ! -f "$BUNDLES_INFO" ]; then
+  echo "Error: Equinox configuration file not found: $BUNDLES_INFO"
+  exit 1
 fi
 
+echo "-> Registering bundle in Equinox simpleconfigurator..."
+cp "$BUNDLES_INFO" "${BUNDLES_INFO}.bak"
+sed -i '/^io\.github\.dbeaver\.export\.geojson,/d' "$BUNDLES_INFO"
+echo "$BUNDLE_ENTRY" >> "$BUNDLES_INFO"
+
 echo "=== Installation Completed Successfully! ==="
-echo "Restart DBeaver with: dbeaver -clean &"
+echo "Close every DBeaver window, then start it once with:"
+echo "  dbeaver -clean"
+echo "The -clean flag refreshes DBeaver's plugin registry."
