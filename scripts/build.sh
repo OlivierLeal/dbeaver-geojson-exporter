@@ -47,6 +47,7 @@ CP=$(find "$DBEAVER_PLUGINS_DIR" -name "*.jar" | tr '\n' ':')
 
 echo "-> Compiling Java sources..."
 javac -cp "$CP" -d "$BUILD_DIR" \
+    --release 17 \
     "$PROJECT_DIR"/src/io/github/dbeaver/export/geojson/GeoJsonDataExporter.java
 
 echo "-> Packaging OSGi bundle JAR..."

@@ -44,7 +44,7 @@ $Classpath = $Jars -join ";"
 
 Write-Host "-> Compiling Java sources..." -ForegroundColor Green
 $SourceFile = Join-Path $ProjectDir "src\io\github\dbeaver\export\geojson\GeoJsonDataExporter.java"
-& javac -cp $Classpath -d $BuildDir $SourceFile
+& javac --release 17 -cp $Classpath -d $BuildDir $SourceFile
 
 Write-Host "-> Packaging OSGi bundle JAR..." -ForegroundColor Green
 $ManifestFile = Join-Path $ProjectDir "META-INF\MANIFEST.MF"

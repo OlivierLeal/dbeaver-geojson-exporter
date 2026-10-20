@@ -40,6 +40,7 @@ jobs:
           jar tf "$JAR_FILE" | grep "GeoJsonDataExporter.class"
           jar tf "$JAR_FILE" | grep "plugin.xml"
           jar tf "$JAR_FILE" | grep "META-INF/MANIFEST.MF"
+          javap -verbose -classpath "$JAR_FILE" io.github.dbeaver.export.geojson.GeoJsonDataExporter | grep "major version: 61"
           echo "Validation successful!"
 
       - name: Upload Build Artifact
